@@ -1,27 +1,70 @@
 import { useState } from 'react';
 import classes from './auth-form.module.css';
 
+async function createUser(email, password) {
+  const response = await fetch('/api/auth/signup', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  const data = await response.json();
+
+  if(!response.ok) {
+    throw new Error(data.message || 'Something went wrong...')
+  } else {
+    return data;
+  }
+}
+
 function AuthForm() {
   const [isLogin, setIsLogin] = useState(true);
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   function switchAuthModeHandler() {
     setIsLogin((prevState) => !prevState);
   }
 
+  function handleEmailChange(e) {
+    setEmail(e.target.value);
+  }
+
+  function handlePasswordChange(e) {
+    setPassword(e.target.value);
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+
+    if (isLogin) {
+      // user is login
+    } else {
+      try {
+        const result = await createUser(email, password);
+        console.log(result);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+  }
+
   return (
     <section className={classes.auth}>
       <h1>{isLogin ? 'Login' : 'Sign Up'}</h1>
-      <form>
+      <form onSubmit={handleSubmit}>
         <div className={classes.control}>
           <label htmlFor='email'>Your Email</label>
-          <input type='email' id='email' required />
+          <input type='email' id='email' value={email} onChange={handleEmailChange} required />
         </div>
         <div className={classes.control}>
           <label htmlFor='password'>Your Password</label>
-          <input type='password' id='password' required />
+          <input type='password' id='password' value={password} onChange={handlePasswordChange} required />
         </div>
         <div className={classes.actions}>
-          <button>{isLogin ? 'Login' : 'Create Account'}</button>
+          <button type="submit">{isLogin ? 'Login' : 'Create Account'}</button>
           <button
             type='button'
             className={classes.toggle}
