@@ -1,8 +1,13 @@
 import Link from 'next/link';
-
 import classes from './main-navigation.module.css';
+import { useSession } from 'next-auth/client';
 
 function MainNavigation() {
+  const [session, loading] = useSession();
+
+  console.log('session', session);
+  console.log('loading', loading);
+
   return (
     <header className={classes.header}>
       <Link href='/'>
