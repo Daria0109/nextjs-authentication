@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import classes from './auth-form.module.css';
 import { signIn } from 'next-auth/client';
 import { useRouter } from 'next/router';
+import {
+  NotificationContext,
+  Status
+} from '../../providers/notification-provider/notification-provider';
 
 async function createUser(email, password) {
   const response = await fetch('/api/auth/signup', {
@@ -23,9 +27,9 @@ async function createUser(email, password) {
 function AuthForm() {
   const router = useRouter();
   const [isLogin, setIsLogin] = useState(true);
-
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { toggleNotification } = useContext(NotificationContext);
 
   function switchAuthModeHandler() {
     setIsLogin((prevState) => !prevState);
@@ -42,22 +46,52 @@ function AuthForm() {
   async function handleSubmit(e) {
     e.preventDefault();
 
+    toggleNotification({
+      status: Status.PENDING,
+      title: 'Sending...',
+      message: 'Your request is on its way!'
+    });
+
     if (isLogin) {
+
       const result = await signIn('credentials', {
         redirect: false,
         email,
         password
       });
       if (!result.error) {
+        toggleNotification({
+          status: Status.SUCCESS,
+          title: 'Success!',
+          message: 'You are logged in successfully!'
+        });
         await router.replace('/profile');
+      } else {
+        toggleNotification({
+          status: Status.ERROR,
+          title: 'Error!',
+          message: result.error?.toString() || 'Something went wrong...'
+        });
       }
+
     } else {
+
       try {
         const result = await createUser(email, password);
-        console.log(result);
+        toggleNotification({
+          status: Status.SUCCESS,
+          title: 'Success!',
+          message: 'Your account is created successfully!'
+        });
+        setIsLogin(true);
       } catch (err) {
-        console.log(err);
+        toggleNotification({
+          status: Status.ERROR,
+          title: 'Error!',
+          message: err?.toString() || 'Something went wrong...'
+        });
       }
+
     }
   }
 

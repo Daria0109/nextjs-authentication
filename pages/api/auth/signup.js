@@ -7,7 +7,8 @@ async function handler(req, res) {
 	}
 
 	const { email, password } = req.body;
-	const isInvalid = !email || !email.includes('@') || !password || password.trim() < 7;
+	const isInvalid = !email || !email.includes('@') || !password || password.trim().length
+		< 7;
 
 	if (isInvalid) {
 		res.status(422).json({ message: 'Invalid email or/and password' });

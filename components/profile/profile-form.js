@@ -1,5 +1,9 @@
 import classes from './profile-form.module.css';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import {
+    NotificationContext,
+    Status
+} from '../../providers/notification-provider/notification-provider';
 
 async function changePassword(passwordData) {
     const response = await fetch('/api/user/change-password', {
@@ -20,6 +24,7 @@ async function changePassword(passwordData) {
 function ProfileForm() {
     const [newPassword, setNewPassword] = useState('');
     const [oldPassword, setOldPassword] = useState('');
+    const { toggleNotification } = useContext(NotificationContext);
 
     function handleNewPasswordChange(e) {
         setNewPassword(e.target.value);
@@ -32,11 +37,25 @@ function ProfileForm() {
     async function handleSubmit(e) {
         e.preventDefault();
 
+        toggleNotification({
+            status: Status.PENDING,
+            title: 'Sending...',
+            message: 'Your request is on its way!'
+        });
+
         try {
-            const result = await changePassword({ newPassword, oldPassword });
-            console.log(result);
+            await changePassword({ newPassword, oldPassword });
+            toggleNotification({
+                status: Status.SUCCESS,
+                title: 'Success!',
+                message: 'Password is changed successfully!'
+            });
         } catch (err) {
-            console.log(err);
+            toggleNotification({
+                status: Status.ERROR,
+                title: 'Error!',
+                message: err?.toString() || 'Something went wrong...'
+            });
         }
     }
 
