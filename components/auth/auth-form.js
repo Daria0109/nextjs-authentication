@@ -1,6 +1,6 @@
 import { useContext, useState } from 'react';
 import classes from './auth-form.module.css';
-import { signIn } from 'next-auth/client';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import {
   NotificationContext,

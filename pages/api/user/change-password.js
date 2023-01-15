@@ -1,4 +1,4 @@
-import { getSession } from 'next-auth/client';
+import { getSession } from 'next-auth/react';
 import connectToDataBase from '../../../lib/database';
 import { hashPassword, verifyPassword } from '../../../lib/auth';
 
